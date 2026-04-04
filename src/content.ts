@@ -1,0 +1,30 @@
+import { leetcodeHandler } from "./platform/leetcode";
+import { codeforcesHandler } from "./platform/codeforces";
+import { nowcoderHandler } from "./platform/nowcoder";
+import { acwingHandler } from "./platform/acwing";
+import { luoguHandler } from "./platform/luogu";
+import { atcoderHandler } from "./platform/atcoder";
+import type { PlatformHandler } from "./platform";
+
+const handlers: PlatformHandler[] = [
+  leetcodeHandler,
+  codeforcesHandler,
+  nowcoderHandler,
+  acwingHandler,
+  luoguHandler,
+  atcoderHandler,
+];
+
+function pickHandler(): PlatformHandler | null {
+  const h = handlers.find((h) => h.matches(window.location));
+  return h || null;
+}
+
+function init() {
+  const handler = pickHandler();
+  if (!handler) return;
+  handler.ensureUI();
+}
+
+window.addEventListener("load", init);
+setTimeout(init, 800);

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Copy Algo Problems",
+  "version": "0.1.0",
+  "description": "Copy algorithm problems as Markdown from major OJ platforms.",
+  "permissions": ["clipboardWrite"],
+  "host_permissions": [
+    "https://leetcode.com/problems/*",
+    "https://leetcode.cn/problems/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://leetcode.cn/problems/*"
+      ],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "assets/icons/16.png",
+    "32": "assets/icons/32.png",
+    "48": "assets/icons/48.png",
+    "128": "assets/icons/128.png"
+  }
+}
