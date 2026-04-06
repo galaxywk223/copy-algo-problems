@@ -6,13 +6,19 @@
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",
-    "https://leetcode.cn/problems/*"
+    "https://leetcode.com/contest/*",
+    "https://leetcode.cn/problems/*",
+    "https://leetcode.cn/contest/*",
+    "https://codeforces.com/contest/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://leetcode.com/problems/*",
-        "https://leetcode.cn/problems/*"
+        "https://leetcode.com/contest/*",
+        "https://leetcode.cn/problems/*",
+        "https://leetcode.cn/contest/*",
+        "https://codeforces.com/contest/*/problem/*"
       ],
       "js": ["dist/content.js"],
       "run_at": "document_idle"

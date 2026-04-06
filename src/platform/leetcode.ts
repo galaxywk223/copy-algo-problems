@@ -8,7 +8,7 @@ const BUTTON_ID = "cap-copy-helper-button";
 const APP_FLAG = "__CAP_COPY_HELPER_INSTALLED__";
 
 function isProblemPage() {
-  return /^\/problems\/[^/]+(?:\/.*)?$/.test(location.pathname);
+  return /\/problems\/[^/]+(?:\/.*)?$/.test(location.pathname);
 }
 
 function getProblemSlug() {
@@ -304,11 +304,12 @@ function findToolbarContainer(): HTMLElement | null {
   if (!titleEl) return null;
 
   let current: HTMLElement | null = titleEl.parentElement;
-  for (let depth = 0; current && depth < 6; depth += 1, current = current.parentElement) {
-    const candidates = current.querySelectorAll<HTMLElement>("div.flex.gap-1");
+  for (let depth = 0; current && depth < 8; depth += 1, current = current.parentElement) {
+    const candidates = current.querySelectorAll<HTMLElement>("div.flex.gap-1, div.flex.flex-wrap.gap-1");
 
     for (const el of Array.from(candidates)) {
       if (!isVisible(el)) continue;
+      if (!el.children.length) continue;
 
       const text = (el.textContent || "").trim();
 
@@ -316,14 +317,21 @@ function findToolbarContainer(): HTMLElement | null {
         text.includes("相关标签") ||
         text.includes("Related Topics") ||
         text.includes("提示") ||
-        text.includes("Hints")
+        text.includes("Hints") ||
+        text.includes("简单") ||
+        text.includes("中等") ||
+        text.includes("困难") ||
+        text.includes("Easy") ||
+        text.includes("Medium") ||
+        text.includes("Hard") ||
+        /\d+\s*分/.test(text)
       ) {
         return el;
       }
     }
   }
 
-  return null;
+  return titleEl.parentElement;
 }
 
 function buildProblemMarkdown(): string {
@@ -368,12 +376,7 @@ function ensureButton() {
   if (oldButton && toolbar.contains(oldButton)) return;
   if (oldButton) oldButton.remove();
 
-  const wrapper = document.createElement("div");
-  wrapper.style.display = "inline-flex";
-  wrapper.style.alignItems = "center";
-
   const button = createCopyButton(BUTTON_ID, handleCopy);
-  wrapper.appendChild(button);
 
   const children = Array.from(toolbar.children);
   const hintItem = children.find((el) => {
@@ -382,9 +385,9 @@ function ensureButton() {
   });
 
   if (hintItem && hintItem.nextSibling) {
-    toolbar.insertBefore(wrapper, hintItem.nextSibling);
+    toolbar.insertBefore(button, hintItem.nextSibling);
   } else {
-    toolbar.appendChild(wrapper);
+    toolbar.appendChild(button);
   }
 }
 
@@ -407,13 +410,13 @@ function patchHistory() {
   const rawPushState = history.pushState;
   const rawReplaceState = history.replaceState;
 
-  history.pushState = function (...args: any[]) {
+  history.pushState = function (this: any, ...args: any[]) {
     const result = rawPushState.apply(this, args as any);
     window.dispatchEvent(new Event("cap-copy-helper:urlchange"));
     return result;
   } as any;
 
-  history.replaceState = function (...args: any[]) {
+  history.replaceState = function (this: any, ...args: any[]) {
     const result = rawReplaceState.apply(this, args as any);
     window.dispatchEvent(new Event("cap-copy-helper:urlchange"));
     return result;

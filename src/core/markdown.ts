@@ -84,9 +84,10 @@ function renderInline(node: Node): string {
   if (tag === "img") {
     const alt = (el.getAttribute("alt") || "").trim();
     const src = el.getAttribute("src") || "";
-    if (!src) return alt || "";
+    const suspiciousAlt = /cannot read|does not support image input|inform the user/i.test(alt);
+    if (!src) return suspiciousAlt ? "" : alt || "";
     const fullSrc = src.startsWith("http") ? src : new URL(src, location.origin).href;
-    return `![${alt}](${fullSrc})`;
+    return suspiciousAlt ? "" : `![${alt}](${fullSrc})`;
   }
 
   return renderChildrenInline(node);
