@@ -5,16 +5,46 @@ import type { PlatformHandler } from "./index";
 
 const BUTTON_ID = "cap-copy-helper-codeforces-button";
 
+type ProblemPathInfo = {
+  contestId: string;
+  index: string;
+};
+
+function getProblemPathInfo(loc: Location = location): ProblemPathInfo | null {
+  const contestMatch = loc.pathname.match(/^\/contest\/(\d+)\/problem\/([A-Za-z0-9]+)\/?$/);
+  if (contestMatch) {
+    return {
+      contestId: contestMatch[1],
+      index: contestMatch[2],
+    };
+  }
+
+  const problemsetMatch = loc.pathname.match(/^\/problemset\/problem\/(\d+)\/([A-Za-z0-9]+)\/?$/);
+  if (problemsetMatch) {
+    return {
+      contestId: problemsetMatch[1],
+      index: problemsetMatch[2],
+    };
+  }
+
+  return null;
+}
+
 function isProblemPage(loc: Location = location): boolean {
-  return /^\/contest\/\d+\/problem\/[A-Za-z0-9]+\/?$/.test(loc.pathname);
+  return getProblemPathInfo(loc) !== null;
 }
 
 function getProblemIndex(): string {
-  const match = location.pathname.match(/^\/contest\/\d+\/problem\/([A-Za-z0-9]+)\/?$/);
-  return match?.[1] || "";
+  return getProblemPathInfo()?.index || "";
 }
 
 function getCanonicalProblemUrl(): string {
+  const canonicalHref = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href?.trim();
+  if (canonicalHref) return canonicalHref;
+
+  const ogUrl = document.querySelector('meta[property="og:url"]')?.getAttribute("content")?.trim();
+  if (ogUrl) return ogUrl;
+
   return `${location.origin}${location.pathname.replace(/\/+$/, "")}`;
 }
 
@@ -42,9 +72,28 @@ function getProblemTitle(): string {
 }
 
 function getContestTitle(): string {
+  const pathInfo = getProblemPathInfo();
+  if (pathInfo) {
+    const contestLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(`a[href^="/contest/${pathInfo.contestId}"]`)
+    )
+      .map((el) => el.textContent?.trim() || "")
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+
+    if (contestLinks.length) return contestLinks[0];
+  }
+
   const contestLink = document.querySelector<HTMLElement>("#sidebar .sidebox .rtable th.left a");
   const text = contestLink?.textContent?.trim();
   if (text) return text;
+
+  const pageTitle = document.title.replace(/\s*-\s*Codeforces$/i, "").trim();
+  const problemTitle = getProblemTitle();
+  if (pageTitle && problemTitle) {
+    const contestTitle = pageTitle.replace(new RegExp(`^${problemTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*-\\s*`, "i"), "").trim();
+    if (contestTitle && contestTitle !== pageTitle) return contestTitle;
+  }
 
   return "Codeforces Contest";
 }

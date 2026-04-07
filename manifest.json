@@ -9,7 +9,8 @@
     "https://leetcode.com/contest/*",
     "https://leetcode.cn/problems/*",
     "https://leetcode.cn/contest/*",
-    "https://codeforces.com/contest/*"
+    "https://codeforces.com/contest/*",
+    "https://codeforces.com/problemset/problem/*"
   ],
   "content_scripts": [
     {
@@ -18,7 +19,8 @@
         "https://leetcode.com/contest/*",
         "https://leetcode.cn/problems/*",
         "https://leetcode.cn/contest/*",
-        "https://codeforces.com/contest/*/problem/*"
+        "https://codeforces.com/contest/*/problem/*",
+        "https://codeforces.com/problemset/problem/*"
       ],
       "js": ["dist/content.js"],
       "run_at": "document_idle"

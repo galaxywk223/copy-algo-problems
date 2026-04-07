@@ -23,6 +23,7 @@
   - `https://leetcode.cn/contest/*`
 - Codeforces
   - `https://codeforces.com/contest/*/problem/*`
+  - `https://codeforces.com/problemset/problem/*`
 
 ### 已有占位适配器，但尚未完成
 
