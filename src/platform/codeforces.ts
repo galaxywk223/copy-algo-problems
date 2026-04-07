@@ -106,11 +106,40 @@ function getProblemTags(): string[] {
   return [...new Set(tags)];
 }
 
+function extractPreformattedText(node: Node): string {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent || "";
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return "";
+  }
+
+  const el = node as HTMLElement;
+  const tag = el.tagName.toLowerCase();
+
+  if (tag === "br") {
+    return "\n";
+  }
+
+  const text = Array.from(el.childNodes).map(extractPreformattedText).join("");
+
+  if (["div", "p", "li", "tr"].includes(tag) && !text.endsWith("\n")) {
+    return text + "\n";
+  }
+
+  return text;
+}
+
 function cleanupProblemStatement(node: HTMLElement): HTMLElement {
   const clone = node.cloneNode(true) as HTMLElement;
 
   clone.querySelectorAll(
     "script, style, .input-output-copier, .diff-notifier, .diff-popup, .testCaseMarker"
+  ).forEach((el) => el.remove());
+
+  clone.querySelectorAll(
+    ".MathJax_Preview, .MJX_Assistive_MathML, mjx-assistive-mml, script[type='math/tex'], script[type='math/tex; mode=display']"
   ).forEach((el) => el.remove());
 
   const title = clone.querySelector<HTMLElement>(".header .title");
@@ -148,7 +177,10 @@ function cleanupProblemStatement(node: HTMLElement): HTMLElement {
   });
 
   clone.querySelectorAll<HTMLElement>("pre").forEach((pre) => {
-    pre.textContent = pre.innerText || pre.textContent || "";
+    pre.textContent = extractPreformattedText(pre)
+      .replace(/\r/g, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trimEnd();
   });
 
   return clone;
