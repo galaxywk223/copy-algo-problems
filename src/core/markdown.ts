@@ -243,7 +243,14 @@ export function renderChildren(node: Node, depth: number = 0): string {
 }
 
 export function cleanupMarkdown(markdown: string): string {
-  let text = normalizeWhitespace(markdown);
+  const codeBlocks: string[] = [];
+  let text = String(markdown || "").replace(/```[\s\S]*?```/g, (block) => {
+    const placeholder = `@@CAP_CODE_BLOCK_${codeBlocks.length}@@`;
+    codeBlocks.push(block.replace(/\r/g, ""));
+    return placeholder;
+  });
+
+  text = normalizeWhitespace(text);
 
   text = text
     .replace(/[ \t]+\n/g, "\n")
@@ -258,6 +265,8 @@ export function cleanupMarkdown(markdown: string): string {
     .replace(/\*\*`([^`]+)`\*\*/g, "`$1`")
     .replace(/^\n+/, "")
     .replace(/\n+$/, "");
+
+  text = text.replace(/@@CAP_CODE_BLOCK_(\d+)@@/g, (_, index) => codeBlocks[Number(index)] || "");
 
   return text.trim();
 }

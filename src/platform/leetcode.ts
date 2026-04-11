@@ -299,6 +299,192 @@ function getProblemDescriptionMarkdown(): string {
   return markdown.replace(titleRegex, "").trim();
 }
 
+function sanitizeCodeText(text: string): string {
+  return String(text || "")
+    .replace(/\u00a0/g, " ")
+    .replace(/\u200b/g, "")
+    .replace(/\r/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^\s*\n/, "")
+    .replace(/\n\s*$/, "");
+}
+
+function looksLikeCode(text: string): boolean {
+  const code = sanitizeCodeText(text);
+  if (code.length < 12) return false;
+  if (/\n/.test(code)) return true;
+
+  return /[{}();=<>[\]]|=>|\b(class|def|function|return|public|private|static|void|int|string|boolean|vector|ListNode|TreeNode)\b/.test(
+    code
+  );
+}
+
+function scoreCodeCandidate(text: string): number {
+  const code = sanitizeCodeText(text);
+  if (!looksLikeCode(code)) return -Infinity;
+
+  let score = code.length;
+  score += (code.match(/\n/g)?.length || 0) * 40;
+
+  if (/\b(class|function|def|return|public|private|static)\b/.test(code)) score += 300;
+  if (/\b(ListNode|TreeNode|Solution)\b/.test(code)) score += 400;
+  if (/[{}]/.test(code)) score += 120;
+  if (/^\s{2,}\S/m.test(code)) score += 80;
+  if (/Input|Output|Example|Constraints|提示|示例|约束/.test(code)) score -= 1500;
+
+  return score;
+}
+
+function collectCodeCandidate(candidates: string[], text: string | null | undefined) {
+  const code = sanitizeCodeText(text || "");
+  if (!code || !looksLikeCode(code)) return;
+  candidates.push(code);
+}
+
+function getCodeTabsetRoot(): HTMLElement | null {
+  const directSelectors = ["#code_tabbar_outer", "#code_tab"];
+
+  for (const selector of directSelectors) {
+    const el = document.querySelector<HTMLElement>(selector);
+    const root = el?.closest<HTMLElement>(".flexlayout__tabset");
+    if (root && isVisible(root)) {
+      return root;
+    }
+  }
+
+  const tabs = Array.from(document.querySelectorAll<HTMLElement>('[role="tab"], button, div'));
+  for (const tab of tabs) {
+    if (!isVisible(tab)) continue;
+    const text = (tab.textContent || "").trim();
+    if (text !== "代码" && text !== "Code") continue;
+
+    const root = tab.closest<HTMLElement>(".flexlayout__tabset");
+    if (root && isVisible(root)) {
+      return root;
+    }
+  }
+
+  return null;
+}
+
+function getCodeSearchRoots(): HTMLElement[] {
+  const roots: HTMLElement[] = [];
+  const seen = new Set<HTMLElement>();
+
+  const pushRoot = (root: HTMLElement | null) => {
+    if (!root || seen.has(root)) return;
+    seen.add(root);
+    roots.push(root);
+  };
+
+  pushRoot(getCodeTabsetRoot());
+
+  const editorSelectors = [
+    ".monaco-editor",
+    ".cm-editor",
+    ".CodeMirror",
+    '[class*="monaco-editor"]',
+    '[class*="CodeMirror"]',
+  ];
+
+  for (const selector of editorSelectors) {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    for (const node of nodes) {
+      if (!isVisible(node)) continue;
+      pushRoot(node.closest<HTMLElement>(".flexlayout__tabset") || node);
+    }
+  }
+
+  return roots;
+}
+
+function extractMonacoCode(root: ParentNode): string {
+  const candidates: string[] = [];
+
+  const textModels = Array.from(
+    root.querySelectorAll<HTMLTextAreaElement>('textarea, textarea.inputarea, textarea[aria-label*="Editor"]')
+  );
+  for (const textarea of textModels) {
+    collectCodeCandidate(candidates, textarea.value);
+  }
+
+  const renderedBlocks = Array.from(
+    root.querySelectorAll<HTMLElement>(
+      ".monaco-editor .view-lines, .monaco-editor .view-line, .monaco-editor [data-mprt='6']"
+    )
+  );
+  for (const block of renderedBlocks) {
+    if (!isVisible(block)) continue;
+    collectCodeCandidate(candidates, block.innerText || block.textContent);
+  }
+
+  if (!candidates.length) return "";
+
+  return candidates.sort((a, b) => scoreCodeCandidate(b) - scoreCodeCandidate(a))[0] || "";
+}
+
+function extractCodeMirrorCode(root: ParentNode): string {
+  const candidates: string[] = [];
+
+  const contentEls = Array.from(
+    root.querySelectorAll<HTMLElement>(".cm-editor .cm-content, .CodeMirror-code, .CodeMirror-lines")
+  );
+  for (const el of contentEls) {
+    if (!isVisible(el)) continue;
+    collectCodeCandidate(candidates, el.innerText || el.textContent);
+  }
+
+  if (!candidates.length) return "";
+
+  return candidates.sort((a, b) => scoreCodeCandidate(b) - scoreCodeCandidate(a))[0] || "";
+}
+
+function extractGenericEditorCode(root: ParentNode): string {
+  const candidates: string[] = [];
+
+  const genericSelectors = [
+    '[contenteditable="true"]',
+    "textarea",
+    "pre",
+    "code",
+  ];
+
+  for (const selector of genericSelectors) {
+    const elements = Array.from(root.querySelectorAll<HTMLElement>(selector));
+    for (const el of elements) {
+      if (selector !== "textarea" && !isVisible(el)) continue;
+
+      const text =
+        el instanceof HTMLTextAreaElement ? el.value : el.innerText || el.textContent || "";
+      collectCodeCandidate(candidates, text);
+    }
+  }
+
+  if (!candidates.length) return "";
+
+  return candidates.sort((a, b) => scoreCodeCandidate(b) - scoreCodeCandidate(a))[0] || "";
+}
+
+function getDefaultCodeMarkdown(): string {
+  const roots = getCodeSearchRoots();
+  if (!roots.length) return "";
+
+  const candidates: string[] = [];
+
+  for (const root of roots) {
+    collectCodeCandidate(candidates, extractMonacoCode(root));
+    collectCodeCandidate(candidates, extractCodeMirrorCode(root));
+    collectCodeCandidate(candidates, extractGenericEditorCode(root));
+  }
+
+  if (!candidates.length) return "";
+
+  const code = candidates.sort((a, b) => scoreCodeCandidate(b) - scoreCodeCandidate(a))[0] || "";
+  if (!code) return "";
+
+  return `\`\`\`\n${code}\n\`\`\``;
+}
+
 function findToolbarContainer(): HTMLElement | null {
   const titleEl = findTitleElement();
   if (!titleEl) return null;
@@ -340,6 +526,7 @@ function buildProblemMarkdown(): string {
   const difficulty = getDifficulty();
   const tags = getTags();
   const description = getProblemDescriptionMarkdown();
+  const defaultCode = getDefaultCodeMarkdown();
 
   const lines = [`# ${title}`, "", `链接：${url}`];
 
@@ -357,6 +544,10 @@ function buildProblemMarkdown(): string {
     lines.push(description);
   } else {
     lines.push("（未提取到题面正文，可以调整选择器后再试）");
+  }
+
+  if (defaultCode) {
+    lines.push("", "## 默认代码", "", defaultCode);
   }
 
   return cleanupMarkdown(lines.join("\n"));
