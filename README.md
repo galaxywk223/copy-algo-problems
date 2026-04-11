@@ -52,13 +52,30 @@
 
 ## 安装方式
 
-### 1. 安装依赖
+### 给普通用户：从 GitHub Releases 安装
+
+1. 打开仓库的 [Releases](https://github.com/galaxywk223/copy-algo-problems/releases) 页面
+2. 下载最新版本的扩展压缩包 `copy-algo-problems-<version>.zip`
+3. 将压缩包解压到本地任意目录
+4. 打开 Chrome / Edge 扩展管理页
+5. 开启“开发者模式”
+6. 选择“加载已解压的扩展程序”
+7. 选择解压后的扩展目录
+
+说明：
+
+- Release 压缩包中已经包含运行所需的 `manifest.json`、`assets/` 和 `dist/`
+- 普通使用者不需要安装 Node.js，也不需要自己执行构建命令
+
+### 给开发者：从源码构建后加载
+
+#### 1. 安装依赖
 
 ```bash
 npm install
 ```
 
-### 2. 构建扩展
+#### 2. 构建扩展
 
 ```bash
 npm run build
@@ -68,7 +85,7 @@ npm run build
 
 - `dist/content.js`
 
-### 3. 在浏览器中加载
+#### 3. 在浏览器中加载
 
 以 Chrome / Edge 为例：
 
@@ -102,12 +119,27 @@ npm run build
 npm install
 npm run build
 npm run dev
+npm run package
 ```
 
 说明：
 
 - `npm run build`：执行一次性构建
 - `npm run dev`：以 watch 模式运行 esbuild，便于调试内容脚本
+- `npm run package`：先构建，再生成可上传到 GitHub Releases 的扩展压缩包
+
+### 发布 Release
+
+如果你希望 GitHub 自动生成可下载的扩展包：
+
+1. 更新 [manifest.json](./manifest.json) 中的版本号
+2. 提交并推送代码
+3. 创建并推送形如 `v0.1.0` 的 tag
+4. GitHub Actions 会自动执行构建，并在 Releases 中上传 `release/*.zip`
+
+本仓库中的工作流文件位于：
+
+- `.github/workflows/release.yml`
 
 ### 项目结构
 
