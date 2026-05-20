@@ -1,20 +1,22 @@
 # Copy Algo Problems
 
-一个面向 Chromium 浏览器的轻量扩展，用来在在线算法题页面上注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
+[中文文档](./README.zh-CN.md)
 
-当前仓库基于真实实现状态维护文档：已经可用的平台是 LeetCode 和 Codeforces；NowCoder、AcWing、洛谷、AtCoder 目前只有占位适配器，还没有完成页面提取与 UI 注入。
+Copy Algo Problems is a lightweight Chromium browser extension that injects a copy button into online programming problem pages and writes cleaned Markdown problem statements to the system clipboard.
 
-## 功能特性
+The current implementation supports LeetCode and Codeforces. NowCoder, AcWing, Luogu, and AtCoder have placeholder adapters in the source tree, but page extraction and UI injection are not implemented for those platforms yet.
 
-- 在支持的题目页面中注入“复制题目”按钮
-- 一键复制整理后的 Markdown 到系统剪贴板
-- 自动提取标题、链接、难度、标签和题面正文等信息
-- 对常见富文本结构做 Markdown 转换，包括标题、列表、代码块、表格、引用与图片
-- 适配单页应用场景下的路由切换与 DOM 变化，尽量保持按钮持续可见
+## Features
 
-## 当前支持情况
+- Injects a copy button into supported problem pages.
+- Copies cleaned Markdown to the system clipboard.
+- Extracts title, URL, difficulty, tags, and statement body where available.
+- Converts common rich-text structures to Markdown, including headings, lists, code blocks, tables, blockquotes, and images.
+- Handles route changes and DOM updates in single-page application environments.
 
-### 已实现并可用
+## Support Status
+
+### Available
 
 - LeetCode
   - `https://leetcode.com/problems/*`
@@ -25,95 +27,83 @@
   - `https://codeforces.com/contest/*/problem/*`
   - `https://codeforces.com/problemset/problem/*`
 
-### 已有占位适配器，但尚未完成
+### Placeholder Adapters
 
 - NowCoder
 - AcWing
-- 洛谷
+- Luogu
 - AtCoder
 
-说明：
+Notes:
 
-- 源码中已经预留了上述平台的 handler 文件，但当前 `ensureUI()` 和 `buildMarkdown()` 仍为空实现。
-- `manifest.json` 目前只声明了 LeetCode 和 Codeforces 所需的站点权限，因此浏览器实际可加载的范围也以这两个平台为准。
+- The source tree already contains handler files for the placeholder platforms, but `ensureUI()` and `buildMarkdown()` remain empty implementations.
+- `manifest.json` currently declares host permissions only for LeetCode and Codeforces, so the loaded browser extension is limited to those platforms.
 
-## 复制后的 Markdown 内容
+## Markdown Output
 
-在已支持平台上，扩展会尽量生成结构清晰的 Markdown，通常包含：
+The generated Markdown usually includes:
 
-- 题目标题
-- 题目链接
-- 难度信息（如页面可提取）
-- 标签信息（如页面可提取）
-- 题面正文
-- 示例、约束、输入输出说明、样例等页面正文中的结构化内容
+- Problem title
+- Problem URL
+- Difficulty, when available
+- Tags, when available
+- Statement body
+- Examples, constraints, input/output descriptions, samples, and other structured page content
 
-实际输出会受目标站点 DOM 结构影响。如果题面页面更新了结构，提取结果可能出现缺项或格式偏差。
+The exact output depends on the target site's DOM structure. Site layout changes can cause missing fields or formatting deviations.
 
-## 安装方式
+## Installation
 
-### 给普通用户：从 GitHub Releases 安装
+### Install From GitHub Releases
 
-1. 打开仓库的 [Releases](https://github.com/galaxywk223/copy-algo-problems/releases) 页面
-2. 下载最新版本的扩展压缩包 `copy-algo-problems-<version>.zip`
-3. 将压缩包解压到本地任意目录
-4. 打开 Chrome / Edge 扩展管理页
-5. 开启“开发者模式”
-6. 选择“加载已解压的扩展程序”
-7. 选择解压后的扩展目录
+1. Open the [Releases](https://github.com/galaxywk223/copy-algo-problems/releases) page.
+2. Download the latest `copy-algo-problems-<version>.zip` extension archive.
+3. Extract the archive to a local directory.
+4. Open the Chrome or Edge extensions management page.
+5. Enable developer mode.
+6. Select "Load unpacked".
+7. Select the extracted extension directory.
 
-说明：
+The release archive contains the required `manifest.json`, `assets/`, and `dist/` files. Node.js and local build commands are not required for normal installation from a release archive.
 
-- Release 压缩包中已经包含运行所需的 `manifest.json`、`assets/` 和 `dist/`
-- 普通使用者不需要安装 Node.js，也不需要自己执行构建命令
+### Build From Source
 
-### 给开发者：从源码构建后加载
-
-#### 1. 安装依赖
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-#### 2. 构建扩展
+Build the extension:
 
 ```bash
 npm run build
 ```
 
-构建完成后，会生成内容脚本：
+The build generates the content script:
 
 - `dist/content.js`
 
-#### 3. 在浏览器中加载
+For Chrome or Edge, the extension management page loads the project root directory `copy-algo-problems`. The browser reads the root `manifest.json` file and injects `dist/content.js` into matching pages.
 
-以 Chrome / Edge 为例：
+## Usage
 
-1. 打开扩展管理页
-2. 开启“开发者模式”
-3. 选择“加载已解压的扩展程序”
-4. 选择当前项目根目录 `copy-algo-problems`
+1. Open a supported problem page.
+2. Wait for the page to finish loading.
+3. Click the injected "Copy Problem" button.
+4. The extension writes the cleaned Markdown to the clipboard.
+5. The copied content can be pasted into a Markdown editor, Obsidian, note software, or a local file.
 
-加载成功后，浏览器会读取根目录下的 `manifest.json`，并在匹配页面注入 `dist/content.js`。
+Copy failures are usually caused by one of the following conditions:
 
-## 使用说明
+- The browser developer console contains a runtime error.
+- The current page is outside the supported platform and URL range.
+- Clipboard permission is blocked by the browser or page environment.
+- The target site changed its page structure and the platform selectors need an update.
 
-1. 进入已支持平台的题目页面
-2. 等待页面加载完成
-3. 点击页面中注入的“复制题目”按钮
-4. 扩展会将整理后的 Markdown 写入剪贴板
-5. 将内容粘贴到任意 Markdown 编辑器、Obsidian、笔记软件或本地文件中即可
+## Development
 
-如果复制失败：
-
-- 先打开浏览器开发者工具的 Console 查看报错
-- 确认当前页面属于支持的平台和 URL 范围
-- 确认浏览器未阻止剪贴板权限
-- 如目标站点页面结构发生变化，可能需要更新对应平台选择器
-
-## 开发说明
-
-### 常用命令
+### Commands
 
 ```bash
 npm install
@@ -122,105 +112,103 @@ npm run dev
 npm run package
 ```
 
-说明：
+Command meanings:
 
-- `npm run build`：执行一次性构建
-- `npm run dev`：以 watch 模式运行 esbuild，便于调试内容脚本
-- `npm run package`：先构建，再生成可上传到 GitHub Releases 的扩展压缩包
+- `npm run build`: runs a one-time extension build.
+- `npm run dev`: runs esbuild in watch mode for content-script debugging.
+- `npm run package`: builds the extension and creates a release archive under `release/`.
 
-### 发布 Release
+### Release Workflow
 
-如果你希望 GitHub 自动生成可下载的扩展包：
+GitHub Actions can generate a downloadable extension archive after a version tag is pushed:
 
-1. 更新 [manifest.json](./manifest.json) 中的版本号
-2. 提交并推送代码
-3. 创建并推送形如 `v0.1.0` 的 tag
-4. GitHub Actions 会自动执行构建，并在 Releases 中上传 `release/*.zip`
+1. Update the version in [manifest.json](./manifest.json).
+2. Commit and push the change.
+3. Create and push a tag such as `v0.1.0`.
+4. GitHub Actions builds the extension and uploads `release/*.zip` to GitHub Releases.
 
-本仓库中的工作流文件位于：
+The workflow file is located at:
 
 - `.github/workflows/release.yml`
 
-### 项目结构
+### Project Structure
 
 ```text
 copy-algo-problems/
-├─ assets/              # 扩展图标资源
-├─ dist/                # 构建输出目录
-├─ src/
-│  ├─ core/             # 剪贴板、DOM、Markdown、UI 基础能力
-│  ├─ platform/         # 各 OJ 平台适配器
-│  └─ content.ts        # 内容脚本入口
-├─ esbuild.config.mjs   # 构建配置
-├─ manifest.json        # 浏览器扩展清单
-└─ package.json         # 项目脚本与依赖
+|-- assets/              extension icon assets
+|-- dist/                build output directory
+|-- src/
+|   |-- core/            clipboard, DOM, Markdown, and UI helpers
+|   |-- platform/        online judge platform adapters
+|   `-- content.ts       content script entry point
+|-- esbuild.config.mjs   build configuration
+|-- manifest.json        browser extension manifest
+`-- package.json         project scripts and dependencies
 ```
 
-### 技术栈
+### Tech Stack
 
 - TypeScript
 - esbuild
-- Manifest V3 浏览器扩展
+- Manifest V3 browser extension
 
-### 当前实现要点
+### Implementation Notes
 
-- 入口文件为 `src/content.ts`
-- 通过平台 handler 判断当前页面是否匹配
-- 在匹配页面中注入复制按钮
-- 将页面 DOM 转换为 Markdown 后调用剪贴板 API 写入
-- 当前构建目标为 `chrome120` 与 `edge120`
+- The entry point is `src/content.ts`.
+- Platform handlers determine whether the current page is supported.
+- The extension injects a copy button on matching pages.
+- The page DOM is converted to Markdown before the clipboard API is called.
+- The current build targets are `chrome120` and `edge120`.
 
-## 权限与隐私
+## Permissions And Privacy
 
-当前扩展声明的权限很少，主要用于完成复制能力：
+The extension declares a small permission surface:
 
 - `clipboardWrite`
-  - 用于将整理后的 Markdown 写入系统剪贴板
+  - Writes cleaned Markdown to the system clipboard.
 - `host_permissions`
-  - 仅声明 LeetCode 与 Codeforces 的题目页访问范围
-  - 目的是允许内容脚本在这些页面运行并读取可见题面内容
+  - Limits content-script access to LeetCode and Codeforces problem pages.
+  - Allows the content script to read visible problem content on those pages.
 
-本项目的设计目标是本地执行页面提取与剪贴板复制，不包含远程上传逻辑，也没有内置服务端通信代码。
+The project is designed for local page extraction and clipboard copying. The codebase does not include remote upload logic or built-in server communication.
 
-但请注意：
+Important boundaries:
 
-- 题面原始内容仍然来自第三方 OJ 平台
-- 是否登录、是否能看到完整题面、页面里展示什么内容，都由目标平台决定
-- 使用者应自行遵守目标平台的服务条款、版权规则与使用限制
+- Original problem content still comes from third-party online judge platforms.
+- Login state, visible problem content, and page availability are controlled by the target platform.
+- Platform terms of service, copyright rules, and usage limits remain applicable to copied problem content.
 
-## 限制与兼容性
+## Limitations
 
-- 当前仅适用于 Chromium 内核浏览器扩展环境，例如 Chrome、Edge
-- 页面提取依赖目标站点的 DOM 结构，站点改版后可能需要更新选择器
-- 占位平台虽然有源码文件，但尚未真正实现，不应视为已支持
-- 当前仓库没有自动化测试；功能验证主要依赖手动在真实页面中检查
-- 如果浏览器或页面环境阻止 `navigator.clipboard`，代码会退回到 `document.execCommand("copy")` 方案
+- The extension currently targets Chromium-based browsers such as Chrome and Edge.
+- Page extraction depends on target-site DOM structures. Selector updates may be required after site redesigns.
+- Placeholder platforms have source files but are not implemented and should not be treated as supported.
+- The repository currently has no automated tests. Functional verification is mainly manual on real problem pages.
+- When `navigator.clipboard` is blocked by the browser or page environment, the implementation falls back to `document.execCommand("copy")`.
 
 ## Roadmap
 
-后续可以继续补齐以下方向：
+- Complete platform adapters for NowCoder, AcWing, Luogu, and AtCoder.
+- Add more resilient selectors and fallback strategies for each platform.
+- Add more Markdown cleanup rules to reduce formatting noise.
+- Add automated tests or minimal regression checks.
+- Add demo screenshots or sample Markdown output to the README.
 
-- 完成 NowCoder、AcWing、洛谷、AtCoder 的平台适配
-- 为不同平台补充更稳定的 DOM 选择器和回退策略
-- 增加更多 Markdown 清洗规则，减少格式噪声
-- 补充自动化测试或最小化回归检查
-- 在 README 中加入演示截图或示例输出
+## License And Copyright
 
-## 许可证与版权说明
+Project code is released under the [MIT License](./LICENSE).
 
-本项目代码基于 [MIT License](./LICENSE) 开源。
+Additional boundaries:
 
-补充说明：
+- Source code, build scripts, and documentation in this repository follow the MIT License.
+- Original problem statements, examples, descriptions, tags, and related content from online judge platforms remain owned by the corresponding platforms and rights holders.
+- This project only provides page-content cleanup and Markdown copy assistance. It does not transfer or grant copyright for original problem content.
 
-- 本仓库中的源代码、构建脚本与文档遵循 MIT License
-- 各 OJ 平台上的题面、样例、描述、标签等原始内容，其版权归对应平台及其权利人所有
-- 本项目只提供页面内容整理与 Markdown 复制辅助，不转移、不授予原题面内容的版权
+## Contribution Notes
 
-## 贡献建议
+Recommended contribution areas:
 
-如果你准备继续完善这个项目，建议优先从以下方向入手：
-
-- 为占位平台补全页面匹配、按钮注入和 Markdown 提取逻辑
-- 在 `manifest.json` 中补充与实际支持平台一致的站点权限
-- 针对不同平台的 DOM 改版增加更稳健的容错逻辑
-- 提交 issue 或 PR 时附上目标页面链接、失败现象和预期 Markdown 结果，便于复现与修复
+- Complete page matching, button injection, and Markdown extraction for placeholder platforms.
+- Keep `manifest.json` host permissions aligned with actually supported platforms.
+- Add robust fallback logic for target-site DOM changes.
+- Include target page links, failure descriptions, and expected Markdown output in issues or pull requests.
