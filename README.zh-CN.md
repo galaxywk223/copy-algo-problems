@@ -2,7 +2,7 @@
 
 一个面向 Chromium 浏览器的轻量扩展，用来在在线算法题页面上注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
 
-当前仓库基于真实实现状态维护文档：已经可用的平台是 LeetCode 和 Codeforces；NowCoder、AcWing、洛谷、AtCoder 目前只有占位适配器，还没有完成页面提取与 UI 注入。
+当前仓库基于真实实现状态维护文档：已经可用的平台是 LeetCode、Codeforces 和蓝桥云课；NowCoder、AcWing、洛谷、AtCoder 目前只有占位适配器，还没有完成页面提取与 UI 注入。
 
 ## 功能特性
 
@@ -24,6 +24,9 @@
 - Codeforces
   - `https://codeforces.com/contest/*/problem/*`
   - `https://codeforces.com/problemset/problem/*`
+- 蓝桥云课
+  - `https://www.lanqiao.cn/problems/*`
+  - 题面通常需要登录后才可见。
 
 ### 已有占位适配器，但尚未完成
 
@@ -35,7 +38,8 @@
 说明：
 
 - 源码中已经预留了上述平台的 handler 文件，但当前 `ensureUI()` 和 `buildMarkdown()` 仍为空实现。
-- `manifest.json` 目前只声明了 LeetCode 和 Codeforces 所需的站点权限，因此浏览器实际可加载的范围也以这两个平台为准。
+- `manifest.json` 目前声明了 LeetCode、Codeforces 和蓝桥云课所需的站点权限，因此浏览器实际可加载的范围以这些已实现平台为准。
+- 蓝桥云课题目页中，复制按钮位于底部导航栏，并放置在“随机一题”按钮左侧。
 
 ## 复制后的 Markdown 内容
 
@@ -45,7 +49,9 @@
 - 题目链接
 - 难度信息（如页面可提取）
 - 标签信息（如页面可提取）
+- 提交统计信息（如页面可提取）
 - 题面正文
+- 当前编辑器代码（如页面可提取）
 - 示例、约束、输入输出说明、样例等页面正文中的结构化内容
 
 实际输出会受目标站点 DOM 结构影响。如果题面页面更新了结构，提取结果可能出现缺项或格式偏差。
@@ -100,7 +106,7 @@ npm run build
 
 1. 进入已支持平台的题目页面
 2. 等待页面加载完成
-3. 点击页面中注入的“复制题目”按钮
+3. 点击页面中注入的复制按钮
 4. 扩展会将整理后的 Markdown 写入剪贴板
 5. 将内容粘贴到 Markdown 编辑器、Obsidian、笔记软件或本地文件中
 
@@ -134,7 +140,7 @@ GitHub 可通过 tag 自动生成可下载的扩展包：
 
 1. 更新 [manifest.json](./manifest.json) 中的版本号
 2. 提交并推送代码
-3. 创建并推送形如 `v0.1.0` 的 tag
+3. 创建并推送形如 `v0.2.0` 的 tag
 4. GitHub Actions 会自动执行构建，并在 Releases 中上传 `release/*.zip`
 
 本仓库中的工作流文件位于：
@@ -177,7 +183,7 @@ copy-algo-problems/
 - `clipboardWrite`
   - 用于将整理后的 Markdown 写入系统剪贴板
 - `host_permissions`
-  - 仅声明 LeetCode 与 Codeforces 的题目页访问范围
+  - 仅声明 LeetCode、Codeforces 与蓝桥云课的题目页访问范围
   - 目的是允许内容脚本在这些页面运行并读取可见题面内容
 
 本项目的设计目标是本地执行页面提取与剪贴板复制，不包含远程上传逻辑，也没有内置服务端通信代码。

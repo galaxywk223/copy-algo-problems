@@ -4,6 +4,7 @@ import { nowcoderHandler } from "./platform/nowcoder";
 import { acwingHandler } from "./platform/acwing";
 import { luoguHandler } from "./platform/luogu";
 import { atcoderHandler } from "./platform/atcoder";
+import { lanqiaoHandler } from "./platform/lanqiao";
 import type { PlatformHandler } from "./platform";
 
 const handlers: PlatformHandler[] = [
@@ -13,6 +14,7 @@ const handlers: PlatformHandler[] = [
   acwingHandler,
   luoguHandler,
   atcoderHandler,
+  lanqiaoHandler,
 ];
 
 function pickHandler(): PlatformHandler | null {

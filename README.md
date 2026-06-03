@@ -4,7 +4,7 @@
 
 Copy Algo Problems is a lightweight Chromium browser extension that injects a copy button into online programming problem pages and writes cleaned Markdown problem statements to the system clipboard.
 
-The current implementation supports LeetCode and Codeforces. NowCoder, AcWing, Luogu, and AtCoder have placeholder adapters in the source tree, but page extraction and UI injection are not implemented for those platforms yet.
+The current implementation supports LeetCode, Codeforces, and Lanqiao. NowCoder, AcWing, Luogu, and AtCoder have placeholder adapters in the source tree, but page extraction and UI injection are not implemented for those platforms yet.
 
 ## Features
 
@@ -26,6 +26,9 @@ The current implementation supports LeetCode and Codeforces. NowCoder, AcWing, L
 - Codeforces
   - `https://codeforces.com/contest/*/problem/*`
   - `https://codeforces.com/problemset/problem/*`
+- Lanqiao
+  - `https://www.lanqiao.cn/problems/*`
+  - Login may be required before the problem statement is visible.
 
 ### Placeholder Adapters
 
@@ -37,7 +40,8 @@ The current implementation supports LeetCode and Codeforces. NowCoder, AcWing, L
 Notes:
 
 - The source tree already contains handler files for the placeholder platforms, but `ensureUI()` and `buildMarkdown()` remain empty implementations.
-- `manifest.json` currently declares host permissions only for LeetCode and Codeforces, so the loaded browser extension is limited to those platforms.
+- `manifest.json` currently declares host permissions for LeetCode, Codeforces, and Lanqiao, so the loaded browser extension is limited to those implemented platforms.
+- On Lanqiao problem pages, the copy button is placed in the bottom navigation bar before the random-problem action.
 
 ## Markdown Output
 
@@ -47,7 +51,9 @@ The generated Markdown usually includes:
 - Problem URL
 - Difficulty, when available
 - Tags, when available
+- Submission statistics, when available
 - Statement body
+- Current editor code, when available
 - Examples, constraints, input/output descriptions, samples, and other structured page content
 
 The exact output depends on the target site's DOM structure. Site layout changes can cause missing fields or formatting deviations.
@@ -90,7 +96,7 @@ For Chrome or Edge, the extension management page loads the project root directo
 
 1. Open a supported problem page.
 2. Wait for the page to finish loading.
-3. Click the injected "Copy Problem" button.
+3. Click the injected copy button.
 4. The extension writes the cleaned Markdown to the clipboard.
 5. The copied content can be pasted into a Markdown editor, Obsidian, note software, or a local file.
 
@@ -124,7 +130,7 @@ GitHub Actions can generate a downloadable extension archive after a version tag
 
 1. Update the version in [manifest.json](./manifest.json).
 2. Commit and push the change.
-3. Create and push a tag such as `v0.1.0`.
+3. Create and push a tag such as `v0.2.0`.
 4. GitHub Actions builds the extension and uploads `release/*.zip` to GitHub Releases.
 
 The workflow file is located at:
@@ -167,7 +173,7 @@ The extension declares a small permission surface:
 - `clipboardWrite`
   - Writes cleaned Markdown to the system clipboard.
 - `host_permissions`
-  - Limits content-script access to LeetCode and Codeforces problem pages.
+  - Limits content-script access to LeetCode, Codeforces, and Lanqiao problem pages.
   - Allows the content script to read visible problem content on those pages.
 
 The project is designed for local page extraction and clipboard copying. The codebase does not include remote upload logic or built-in server communication.

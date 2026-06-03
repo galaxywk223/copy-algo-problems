@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Copy Algo Problems",
-  "version": "0.1.0",
-  "description": "Copy algorithm problems as Markdown from major OJ platforms.",
+  "version": "0.2.0",
+  "description": "Copy LeetCode, Codeforces, and Lanqiao problems as Markdown.",
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",
@@ -10,7 +10,8 @@
     "https://leetcode.cn/problems/*",
     "https://leetcode.cn/contest/*",
     "https://codeforces.com/contest/*",
-    "https://codeforces.com/problemset/problem/*"
+    "https://codeforces.com/problemset/problem/*",
+    "https://www.lanqiao.cn/problems/*"
   ],
   "content_scripts": [
     {
@@ -20,7 +21,8 @@
         "https://leetcode.cn/problems/*",
         "https://leetcode.cn/contest/*",
         "https://codeforces.com/contest/*/problem/*",
-        "https://codeforces.com/problemset/problem/*"
+        "https://codeforces.com/problemset/problem/*",
+        "https://www.lanqiao.cn/problems/*"
       ],
       "js": ["dist/content.js"],
       "run_at": "document_idle"
