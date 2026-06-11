@@ -1,6 +1,6 @@
-# Copy Algo Problems
+# 算法题目复制助手
 
-Copy Algo Problems 是一个面向 Chromium 浏览器的轻量扩展，用于在在线算法题页面注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
+算法题目复制助手是一个面向 Chromium 浏览器的轻量扩展，用于在在线算法题页面注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
 
 当前实现支持 LeetCode、Codeforces 和蓝桥云课。NowCoder、AcWing、洛谷、AtCoder 已预留占位适配器，但尚未完成页面提取与 UI 注入。
 
