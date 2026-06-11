@@ -1,7 +1,7 @@
 {
   "name": "copy-algo-problems",
   "version": "0.2.0",
-  "description": "Chromium extension for copying LeetCode, Codeforces, and Lanqiao problems as Markdown.",
+  "description": "面向 Chromium 浏览器的算法题面 Markdown 复制扩展，支持 LeetCode、Codeforces 和蓝桥云课。",
   "main": "index.js",
   "scripts": {
     "build": "node esbuild.config.mjs",
@@ -10,9 +10,12 @@
   },
   "keywords": [
     "algorithm",
+    "算法题",
     "markdown",
     "chrome-extension",
     "edge-extension",
+    "browser-extension",
+    "题面复制",
     "leetcode",
     "codeforces",
     "lanqiao"

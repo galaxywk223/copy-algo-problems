@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Copy Algo Problems",
+  "name": "算法题目复制助手",
   "version": "0.2.0",
-  "description": "Copy LeetCode, Codeforces, and Lanqiao problems as Markdown.",
+  "description": "将 LeetCode、Codeforces 和蓝桥云课题面复制为 Markdown。",
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",
