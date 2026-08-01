@@ -2,7 +2,7 @@
 
 算法题目复制助手是一个面向 Chromium 浏览器的轻量扩展，用于在在线算法题页面注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
 
-当前实现支持 LeetCode、Codeforces 和蓝桥云课。NowCoder、AcWing、洛谷、AtCoder 已预留占位适配器，但尚未完成页面提取与 UI 注入。
+当前实现支持 LeetCode、Codeforces、AtCoder 和蓝桥云课。NowCoder、AcWing、洛谷已预留占位适配器，但尚未完成页面提取与 UI 注入。
 
 ## 功能特性
 
@@ -24,6 +24,9 @@
 - Codeforces
   - `https://codeforces.com/contest/*/problem/*`
   - `https://codeforces.com/problemset/problem/*`
+- AtCoder
+  - `https://atcoder.jp/contests/*/tasks/*`
+  - 复制内容跟随题目页当前选择的日文或英文题面。
 - 蓝桥云课
   - `https://www.lanqiao.cn/problems/*`
   - 题面通常需要登录后才可见。
@@ -33,12 +36,12 @@
 - NowCoder
 - AcWing
 - 洛谷
-- AtCoder
 
 说明：
 
 - 源码中已经预留上述平台的 handler 文件，但当前 `ensureUI()` 和 `buildMarkdown()` 仍为空实现。
-- `manifest.json` 目前声明 LeetCode、Codeforces 和蓝桥云课所需的站点权限，因此浏览器实际加载范围以这些已实现平台为准。
+- `manifest.json` 目前声明 LeetCode、Codeforces、AtCoder 和蓝桥云课所需的站点权限，因此浏览器实际加载范围以这些已实现平台为准。
+- AtCoder 题目页中的复制按钮位于题目标题区域，题面语言由页面当前显示状态决定。
 - 蓝桥云课题目页中，复制按钮位于底部导航栏，并放置在“随机一题”按钮左侧。
 
 ## 复制后的 Markdown 内容
@@ -128,7 +131,7 @@ GitHub Actions 可在版本 tag 推送后自动生成可下载的扩展包：
 
 1. 更新 [manifest.json](./manifest.json) 中的版本号。
 2. 提交并推送代码。
-3. 创建并推送形如 `v0.2.0` 的 tag。
+3. 创建并推送形如 `v0.3.0` 的 tag。
 4. GitHub Actions 执行构建，并在 Releases 中上传 `release/*.zip`。
 
 工作流文件位于：
@@ -171,7 +174,7 @@ copy-algo-problems/
 - `clipboardWrite`
   - 用于将整理后的 Markdown 写入系统剪贴板。
 - `host_permissions`
-  - 仅声明 LeetCode、Codeforces 与蓝桥云课的题目页访问范围。
+  - 仅声明 LeetCode、Codeforces、AtCoder 与蓝桥云课的题目页访问范围。
   - 用于允许内容脚本在这些页面运行并读取可见题面内容。
 
 项目设计目标是本地执行页面提取与剪贴板复制，不包含远程上传逻辑，也没有内置服务端通信代码。
@@ -192,7 +195,7 @@ copy-algo-problems/
 
 ## Roadmap
 
-- 完成 NowCoder、AcWing、洛谷、AtCoder 的平台适配。
+- 完成 NowCoder、AcWing、洛谷的平台适配。
 - 为不同平台补充更稳定的 DOM 选择器和回退策略。
 - 增加更多 Markdown 清洗规则，减少格式噪声。
 - 补充自动化测试或最小化回归检查。

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "算法题目复制助手",
-  "version": "0.2.0",
-  "description": "将 LeetCode、Codeforces 和蓝桥云课题面复制为 Markdown。",
+  "version": "0.3.0",
+  "description": "将 LeetCode、Codeforces、AtCoder 和蓝桥云课题面复制为 Markdown。",
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",
@@ -11,6 +11,7 @@
     "https://leetcode.cn/contest/*",
     "https://codeforces.com/contest/*",
     "https://codeforces.com/problemset/problem/*",
+    "https://atcoder.jp/contests/*/tasks/*",
     "https://www.lanqiao.cn/problems/*"
   ],
   "content_scripts": [
@@ -22,6 +23,7 @@
         "https://leetcode.cn/contest/*",
         "https://codeforces.com/contest/*/problem/*",
         "https://codeforces.com/problemset/problem/*",
+        "https://atcoder.jp/contests/*/tasks/*",
         "https://www.lanqiao.cn/problems/*"
       ],
       "js": ["dist/content.js"],
