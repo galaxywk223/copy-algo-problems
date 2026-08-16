@@ -1,6 +1,7 @@
 import { leetcodeHandler } from "./platform/leetcode";
 import { codeforcesHandler } from "./platform/codeforces";
 import { nowcoderHandler } from "./platform/nowcoder";
+import { hduHandler } from "./platform/hdu";
 import { acwingHandler } from "./platform/acwing";
 import { luoguHandler } from "./platform/luogu";
 import { atcoderHandler } from "./platform/atcoder";
@@ -11,6 +12,7 @@ const handlers: PlatformHandler[] = [
   leetcodeHandler,
   codeforcesHandler,
   nowcoderHandler,
+  hduHandler,
   acwingHandler,
   luoguHandler,
   atcoderHandler,
