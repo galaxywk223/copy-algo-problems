@@ -23,10 +23,10 @@ function getCanonicalProblemUrl(): string {
 
 function getProblemRoot(): HTMLElement | null {
   const candidates = Array.from(
-    document.querySelectorAll<HTMLElement>(".problem-doc .problem-desc-block")
+    document.querySelectorAll<HTMLElement>(".problem-doc:not(.problem-switch-skeleton)")
   );
 
-  return candidates.find((node) => isVisible(node)) || candidates[0] || null;
+  return candidates.find((node) => isVisible(node)) || null;
 }
 
 function getProblemTitle(): string {
