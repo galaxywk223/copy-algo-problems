@@ -74,12 +74,21 @@ function replaceMathWithSource(root: HTMLElement): void {
 function cleanupProblemRoot(root: HTMLElement): HTMLElement {
   const clone = root.cloneNode(true) as HTMLElement;
 
+  const visibleHintIndexes = Array.from(root.querySelectorAll<HTMLElement>(".problem-hint-body")).map(
+    (hint) => isVisible(hint)
+  );
+
+  clone.querySelectorAll<HTMLElement>(".problem-hint-body").forEach((hint, index) => {
+    if (!visibleHintIndexes[index]) {
+      hint.closest(".problem-hint-row")?.remove();
+    }
+  });
+
   clone
     .querySelectorAll(
       [
         ".problem-desc-header",
         ".problem-pass-stats-block",
-        ".problem-meta-accordions",
         ".similar-problems-block",
         ".related-enterprises-block",
         ".trajectory-doc-block",
