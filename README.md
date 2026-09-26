@@ -2,7 +2,7 @@
 
 算法题目复制助手是一个面向 Chromium 浏览器的轻量扩展，用于在在线算法题页面注入“复制题目”按钮，并将题面整理为 Markdown 后写入剪贴板。
 
-当前实现支持 LeetCode、Codeforces、牛客、AtCoder、HDU 和蓝桥云课。AcWing、洛谷已预留占位适配器，但尚未完成页面提取与 UI 注入。
+当前实现支持 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy。AcWing、洛谷已预留占位适配器，但尚未完成页面提取与 UI 注入。
 
 ## 功能特性
 
@@ -37,6 +37,9 @@
 - 蓝桥云课
   - `https://www.lanqiao.cn/problems/*`
   - 题面通常需要登录后才可见。
+- CodeKy
+  - `https://codeky.online/problem/<数字>`
+  - 复制内容跟随页面当前显示语言，按钮位于题目标题行。
 
 ### 已有占位适配器，但尚未完成
 
@@ -46,11 +49,12 @@
 说明：
 
 - 源码中已经预留上述平台的 handler 文件，但当前 `ensureUI()` 和 `buildMarkdown()` 仍为空实现。
-- `manifest.json` 目前声明 LeetCode、Codeforces、牛客、AtCoder、HDU 和蓝桥云课所需的站点权限，因此浏览器实际加载范围以这些已实现平台为准。
+- `manifest.json` 目前声明 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy 所需的站点权限，因此浏览器实际加载范围以这些已实现平台为准。
 - 牛客题目页中的复制按钮位于页面右上角操作栏；未登录、未报名或无权查看题面时不显示按钮。
 - AtCoder 题目页中的复制按钮位于题目标题区域，题面语言由页面当前显示状态决定。
 - HDU 题目页中的复制按钮位于题目标题区域，仅在存在有效题面章节时显示。
 - 蓝桥云课题目页中，复制按钮位于底部导航栏，并放置在“随机一题”按钮左侧。
+- CodeKy 题目页中的复制按钮位于题目标题行；题面未加载或受访问限制时不显示按钮。
 
 ## 复制后的 Markdown 内容
 

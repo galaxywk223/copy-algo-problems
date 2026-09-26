@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "算法题目复制助手",
-  "version": "0.5.0",
-  "description": "将 LeetCode、Codeforces、牛客、AtCoder、HDU 和蓝桥云课题面复制为 Markdown。",
+  "version": "0.6.0",
+  "description": "将 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy 题面复制为 Markdown。",
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",
@@ -15,7 +15,8 @@
     "https://ac.nowcoder.com/acm/problem/*",
     "https://atcoder.jp/contests/*/tasks/*",
     "https://acm.hdu.edu.cn/showproblem.php*",
-    "https://www.lanqiao.cn/problems/*"
+    "https://www.lanqiao.cn/problems/*",
+    "https://codeky.online/problem/*"
   ],
   "content_scripts": [
     {
@@ -30,7 +31,8 @@
         "https://ac.nowcoder.com/acm/problem/*",
         "https://atcoder.jp/contests/*/tasks/*",
         "https://acm.hdu.edu.cn/showproblem.php*",
-        "https://www.lanqiao.cn/problems/*"
+        "https://www.lanqiao.cn/problems/*",
+        "https://codeky.online/problem/*"
       ],
       "js": ["dist/content.js"],
       "run_at": "document_idle"
