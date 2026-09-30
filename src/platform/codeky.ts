@@ -132,12 +132,140 @@ function hasProblemContent(): boolean {
   ).some((body) => normalizeWhitespace(body.textContent || "").trim().length > 20);
 }
 
+function sanitizeCodeText(text: string): string {
+  return String(text || "")
+    .replace(/\u00a0/g, " ")
+    .replace(/\u200b/g, "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^\s*\n/, "")
+    .replace(/\s+$/, "");
+}
+
+function looksLikeCode(text: string): boolean {
+  if (text.length < 8 || text.length > 100_000) return false;
+  if (!text.includes("\n") && !/[;{}()[\]=]/.test(text)) return false;
+  return /[;{}()[\]=]|\b(?:class|def|function|import|include|public|private|return|const|let|var|int|string|print)\b/.test(
+    text
+  );
+}
+
+function scoreCodeCandidate(text: string): number {
+  let score = text.length;
+  if (text.includes("\n")) score += 500;
+  if (/[;{}]/.test(text)) score += 300;
+  if (/\b(?:class|def|function|import|include|public|return|const|let|var|int|string|print)\b/.test(text)) {
+    score += 300;
+  }
+  return score;
+}
+
+function collectCodeCandidate(candidates: string[], rawText: string): void {
+  const text = sanitizeCodeText(rawText);
+  if (looksLikeCode(text)) candidates.push(text);
+}
+
+function getCodePanelRoots(): HTMLElement[] {
+  const selectors = [
+    ".code-editor-body",
+    ".code-panel",
+    '[data-wb-pane-id="RT"]',
+    ".right-panel",
+  ];
+  const roots: HTMLElement[] = [];
+  const seen = new Set<HTMLElement>();
+
+  for (const selector of selectors) {
+    for (const node of Array.from(document.querySelectorAll<HTMLElement>(selector))) {
+      if (!isVisible(node) || seen.has(node)) continue;
+      seen.add(node);
+      roots.push(node);
+    }
+  }
+
+  return roots;
+}
+
+function getCodeFromRoot(root: HTMLElement): string {
+  const candidates: string[] = [];
+  const editorRoots = [
+    ...(root.matches(".monaco-editor") ? [root] : []),
+    ...Array.from(root.querySelectorAll<HTMLElement>(".monaco-editor")),
+  ];
+
+  for (const editor of editorRoots) {
+    if (!isVisible(editor)) continue;
+
+    for (const textarea of Array.from(
+      editor.querySelectorAll<HTMLTextAreaElement>(
+        'textarea[aria-label*="Editor"], textarea.inputarea, textarea'
+      )
+    )) {
+      collectCodeCandidate(candidates, textarea.value);
+    }
+
+    for (const lines of Array.from(editor.querySelectorAll<HTMLElement>(".view-lines"))) {
+      if (isVisible(lines)) {
+        collectCodeCandidate(candidates, lines.innerText || lines.textContent || "");
+      }
+    }
+  }
+
+  if (!candidates.length) {
+    for (const textarea of Array.from(root.querySelectorAll<HTMLTextAreaElement>("textarea"))) {
+      collectCodeCandidate(candidates, textarea.value);
+    }
+    for (const node of Array.from(root.querySelectorAll<HTMLElement>("pre, code, [contenteditable=\"true\"]"))) {
+      if (isVisible(node)) {
+        collectCodeCandidate(candidates, node.innerText || node.textContent || "");
+      }
+    }
+  }
+
+  return candidates.sort((a, b) => scoreCodeCandidate(b) - scoreCodeCandidate(a))[0] || "";
+}
+
+function normalizeCodeLanguage(rawLanguage: string): string {
+  const language = collapseInlineWhitespace(rawLanguage).trim().toLowerCase();
+  if (!language) return "";
+  if (/c\+\+|cpp|gnu\s*c/.test(language)) return "cpp";
+  if (/python|py\b/.test(language)) return "python";
+  if (/javascript|typescript|\bjs\b|\bts\b/.test(language)) {
+    return language.includes("type") || /\bts\b/.test(language) ? "typescript" : "javascript";
+  }
+  if (/java\b/.test(language)) return "java";
+  if (/c#|csharp/.test(language)) return "csharp";
+  if (/go\b|golang/.test(language)) return "go";
+  if (/rust/.test(language)) return "rust";
+  return language.replace(/[^a-z0-9+#-]+/g, "").slice(0, 24);
+}
+
+function getCurrentCodeLanguage(): string {
+  const languageNode = document.querySelector<HTMLElement>(
+    '.code-header-ml-lang, .code-panel .language-select, .code-panel [aria-label*="语言"]'
+  );
+  return normalizeCodeLanguage(languageNode?.textContent || "");
+}
+
+function getCurrentCodeMarkdown(): string {
+  for (const root of getCodePanelRoots()) {
+    const code = getCodeFromRoot(root);
+    if (!code) continue;
+    const language = getCurrentCodeLanguage();
+    return `## 当前代码\n\n\`\`\`${language}\n${code}\n\`\`\``;
+  }
+  return "";
+}
+
 function buildProblemMarkdown(): string {
   const title = getProblemTitle();
   const description = getProblemDescriptionMarkdown();
   const lines = [`# ${title}`, "", `链接：${getCanonicalProblemUrl()}`, "", "## 题目内容", ""];
 
   lines.push(description || "（未提取到题面正文，可以等待题面加载后重试）");
+  const code = getCurrentCodeMarkdown();
+  if (code) lines.push("", code);
   return cleanupMarkdown(lines.join("\n"));
 }
 

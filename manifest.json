@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "算法题目复制助手",
-  "version": "0.6.0",
-  "description": "将 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy 题面复制为 Markdown。",
+  "version": "0.7.0",
+  "description": "将 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy 题面及当前代码复制为 Markdown。",
   "permissions": ["clipboardWrite"],
   "host_permissions": [
     "https://leetcode.com/problems/*",

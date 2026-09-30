@@ -1,7 +1,7 @@
 {
   "name": "copy-algo-problems",
-  "version": "0.6.0",
-  "description": "面向 Chromium 浏览器的算法题面 Markdown 复制扩展，支持 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy。",
+  "version": "0.7.0",
+  "description": "面向 Chromium 浏览器的算法题面 Markdown 复制扩展，支持 LeetCode、Codeforces、牛客、AtCoder、HDU、蓝桥云课和 CodeKy 题面及当前代码。",
   "main": "index.js",
   "scripts": {
     "build": "node esbuild.config.mjs",
